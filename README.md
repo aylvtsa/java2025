@@ -1,5 +1,7 @@
-# java2025
-Yalovitsa Anastasia IS31
+# java2025 Yalovitsa Anastasia IS31
+
+## ЛАБОРАТОРНА РОБОТА №1 
+Тема: Масиви в мові програмування Java  
 
 Для варіанту №28:  
 С5 =28/5=5,3=3   
