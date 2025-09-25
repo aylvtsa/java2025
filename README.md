@@ -19,5 +19,6 @@ C11=28%11=6
 С3=28%3=1   
 С17=28%17=11   
 
-<img width="468" height="117" alt="image" src="https://github.com/user-attachments/assets/f568391e-25d8-4399-81d3-4cdb0a71ff17" />
+<img width="468" height="117" alt="image" src="https://github.com/user-attachments/assets/f568391e-25d8-4399-81d3-4cdb0a71ff17" />   
+
 Висновки:    
