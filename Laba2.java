@@ -3,48 +3,109 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class Laba2{
+/**
+ * ЛР2: Із заданого тексту видалити всі слова визначеної довжини,
+ * що починаються з приголосної літери.
+ */
+public final class Laba2 {
+
+    /** Розділювач для виводу. */
+    private static final String SEP = "-*".repeat(80);
+
+    /** Голосні літери  */
+    private static final String VOWELS = "аеєиіїоуюяaeiou";
+
+    /** Патерн для знаходження слова  */
+    private static final Pattern WORD_PATTERN =
+            Pattern.compile("\\b\\p{L}+(?:['’]\\p{L}+)*\\b", Pattern.UNICODE_CHARACTER_CLASS);
+
     private Laba2() {}
 
     public static void main(String[] args) {
         run();
     }
 
+    /**
+     * Зчитування вхідних даних від користувача (довжину слова, текст),
+     * обробка тексту, друк результату
+     */
     public static void run() {
         try (Scanner sc = new Scanner(System.in, StandardCharsets.UTF_8)) {
-            System.out.println("-*" .repeat(80));
+            System.out.println(SEP);
             System.out.print("Введіть довжину слова (ціле > 0): ");
-            String lenRaw = sc.nextLine().trim();
-            int targetLen = Integer.parseInt(lenRaw);
+
+            final String lenRaw = sc.nextLine().trim();
+            final int targetLen = Integer.parseInt(lenRaw);
+
             if (targetLen <= 0) {
                 throw new IllegalArgumentException("Довжина має бути > 0");
             }
 
             System.out.println("Введіть текст (порожній рядок — завершити введення):");
-            StringBuilder sb = new StringBuilder();
-            while (sc.hasNextLine()) {
-                String line = sc.nextLine();
+            final StringBuilder inputBuilder = new StringBuilder();
 
-                if (line.isEmpty()) break;
-                sb.append(line).append('\n');
+            // Зчитування тексту до порожнього рядка
+            while (sc.hasNextLine()) {
+                final String line = sc.nextLine();
+                if (line.isEmpty()) {
+                    break;
+                }
+                inputBuilder.append(line).append(System.lineSeparator());
             }
-            String text = sb.toString().trim();
+
+            // Видалення зайвих пробілів/розділювачів на початку/кінці введеного тексту
+            final String text = inputBuilder.toString().strip();
 
             if (text.isEmpty()) {
                 throw new IllegalArgumentException("Порожній текст");
             }
 
-            RemovalResult res = removeWords(text, targetLen);
+            // Обробка тексту
+            final Matcher matcher = WORD_PATTERN.matcher(text);
+            final StringBuilder outputBuilder = new StringBuilder(text.length());
 
-            System.out.println("-*" .repeat(80));
-            System.out.println("Вхідний текст ");
+            int lastMatchEnd = 0;
+            int removedCount = 0;
+
+            while (matcher.find()) {
+                final String word = matcher.group();
+                // Використання codePointCount для коректної довжини Unicode-слова
+                final int wordLen = word.codePointCount(0, word.length());
+                final int firstCodePoint = word.codePointAt(0);
+
+                // Перевірка, чи слово починається з приголосної літери
+                final boolean startsWithConsonant = isConsonant(firstCodePoint);
+                final boolean shouldRemove = startsWithConsonant && (wordLen == targetLen);
+
+                if (shouldRemove) {
+                    // Додаємо текст між попереднім і поточним збігом
+                    outputBuilder.append(text, lastMatchEnd, matcher.start());
+                    lastMatchEnd = matcher.end();
+                    removedCount++;
+                }
+            }
+            // Додаємо залишок тексту після останнього збігу
+            outputBuilder.append(text, lastMatchEnd, text.length());
+
+            // Фінальне очищення тексту:
+            // 1. Заміна послідовностей пробілів/табуляцій на один пробіл.
+            // 2. Видалення пробілів/табуляцій наприкінці рядків.
+            // 3. Видалення пробілів на початку/кінці всього тексту.
+            final String cleaned = outputBuilder.toString()
+                    .replaceAll("[\\t ]{2,}", " ")
+                    .replaceAll("(?m)[\\t ]+$", "")
+                    .strip();
+
+            // Вивід
+            System.out.println(SEP);
+            System.out.println("Вхідний текст");
             System.out.println(text);
             System.out.println("\nДовжина для видалення: " + targetLen);
-            System.out.println("Видалено слів: " + res.removedCount);
+            System.out.println("Видалено слів: " + removedCount);
 
-            System.out.println("-*" .repeat(80));
-            System.out.println("Результат ");
-            System.out.println(res.text);
+            System.out.println(SEP);
+            System.out.println("Результат");
+            System.out.println(cleaned);
 
         } catch (NumberFormatException e) {
             System.err.println("Помилка: довжина має бути цілим числом.");
@@ -55,51 +116,16 @@ public final class Laba2{
         }
     }
 
-    private static final class RemovalResult {
-        final String text;
-        final int removedCount;
-        RemovalResult(String text, int removedCount) {
-            this.text = text;
-            this.removedCount = removedCount;
-        }
-    }
-
-    private static RemovalResult removeWords(String text, int length) {
-
-        Pattern WORD = Pattern.compile("\\b\\p{L}+\\b", Pattern.UNICODE_CHARACTER_CLASS);
-        Matcher m = WORD.matcher(text);
-
-        StringBuilder out = new StringBuilder(text.length());
-        int last = 0, removed = 0;
-
-        while (m.find()) {
-            String word = m.group();
-            int wordLen = word.codePointCount(0, word.length());
-            boolean startsWithConsonant = isConsonant(word.codePointAt(0));
-            boolean shouldRemove = startsWithConsonant && (wordLen == length);
-
-            if (shouldRemove) {
-                out.append(text, last, m.start());
-                last = m.end();
-                removed++;
-            }
-        }
-        out.append(text.substring(last));
-
-        String cleaned = out.toString()
-                .replaceAll("[ \\t]{2,}", " ")
-                .trim();
-
-        return new RemovalResult(cleaned, removed);
-    }
-
+    /**
+     * Перевірка чи є задана кодова точка приголосною літерою
+     * @param codePoint Кодова точка Unicode першого символу слова
+     * @return  true — приголосна літера, інакше false
+     */
     private static boolean isConsonant(int codePoint) {
-        if (!Character.isLetter(codePoint)) return false;
-        int lower = Character.toLowerCase(codePoint);
-        return !isVowel(lower);
-    }
-    private static boolean isVowel(int lowerCaseCodePoint) {
-        final String vowels = "аеєиіїоуюяaeiouy";
-        return vowels.indexOf(lowerCaseCodePoint) >= 0;
+        if (!Character.isLetter(codePoint)) {
+            return false;
+        }
+        final int lowerCaseCodePoint = Character.toLowerCase(codePoint);
+        return VOWELS.indexOf(lowerCaseCodePoint) < 0;
     }
 }
