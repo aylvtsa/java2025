@@ -51,4 +51,7 @@ C11=28%11=6
 Для варіанту №28:    
 С13=28%13=2   
 
-Висновки:  
+<img width="468" height="112" alt="image" src="https://github.com/user-attachments/assets/cbde738a-885e-4726-a8fc-470d97be962f" />
+
+
+
