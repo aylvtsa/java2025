@@ -65,5 +65,5 @@ C11=28%11=6
 С3=28%3=1   
    
 <img width="468" height="125" alt="image" src="https://github.com/user-attachments/assets/c8736021-100d-4176-aba7-579f53305789" />
-     
+  
 Висновки:   
