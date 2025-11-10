@@ -197,9 +197,10 @@ class ApplianceList implements List<Appliance> {
 
     @Override
     public boolean add(Appliance appliance) {
-        linkLast(appliance);
+        linkLast(Objects.requireNonNull(appliance, "Прилад не може бути null"));
         return true;
     }
+    
 
     @Override
     public boolean remove(Object o) {
