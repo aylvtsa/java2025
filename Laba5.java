@@ -71,6 +71,23 @@ class EmissionRange {
         return !(maxMHz < qMin || minMHz > qMax);
     }
 
+/**
+     * Перевизначення equals() та hashCode()
+     * (порівняння та хешування об'єктів EmissionRange за межами діапазону).
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EmissionRange other)) return false;
+        return Double.compare(minMHz, other.minMHz) == 0
+                && Double.compare(maxMHz, other.maxMHz) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(minMHz, maxMHz);
+    }
+    
     /**
      * Людинозрозуміле представлення діапазону в МГц.
      */
@@ -188,6 +205,24 @@ abstract class Appliance {
      */
     public boolean isPlugged() {
         return plugged;
+    }
+
+    /**
+     *  Перевизначення equals() та hashCode()
+     *  (встановлення логіки порівняння і хешування об’єктів Appliance)
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Appliance other)) return false;
+        return powerW == other.powerW
+                && Objects.equals(name, other.name)
+                && Objects.equals(emission, other.emission);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, powerW, emission);
     }
 
     /**
